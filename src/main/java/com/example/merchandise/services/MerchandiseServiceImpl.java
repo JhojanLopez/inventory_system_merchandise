@@ -1,6 +1,7 @@
 package com.example.merchandise.services;
 
 import com.example.merchandise.database.repositories.MerchandiseRepository;
+import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -23,5 +24,10 @@ public class MerchandiseServiceImpl implements MerchandiseService {
         return merchandiseRepository.findAll(pageable).stream()
                 .map(e -> mapper.map(e, MerchandisePageableDto.class))
                 .toList();
+    }
+
+    @Override
+    public MerchandiseDto getById(long id) {
+        return merchandiseRepository.findById(id).map(e -> mapper.map(e, MerchandiseDto.class)).orElse(null);
     }
 }

@@ -3,6 +3,7 @@ package com.example.merchandise.services;
 import com.example.merchandise.DataMerchandise;
 import com.example.merchandise.database.entities.Merchandise;
 import com.example.merchandise.database.repositories.MerchandiseRepository;
+import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -61,5 +63,28 @@ class MerchandiseServiceTest {
             assertEquals(5, all.size());
             assertEquals(1, all.get(0).getId());
         });
+    }
+
+    @Test
+    @DisplayName("test get by id merchandise")
+    void getById() {
+        //given
+        long userId = 1;
+        Merchandise merchandise = data.getMerchandise();
+        MerchandiseDto merchandiseDto = data.getMerchandiseDto();
+        //when
+        when(repository.findById(userId)).thenReturn(Optional.of(merchandise));
+        when(mapper.map(merchandise, MerchandiseDto.class)).thenReturn(merchandiseDto);
+        //then
+        MerchandiseDto byId = merchandiseService.getById(userId);
+        assertAll(
+                () -> {
+                    assertNotNull(byId);
+                    assertEquals(1, byId.getId());
+                    assertEquals("Iphone X", byId.getName());
+                    assertEquals(100, byId.getAmount());
+                    assertEquals("Juan Garcia", byId.getRegisteredByName());
+                }
+        );
     }
 }

@@ -1,6 +1,7 @@
 package com.example.merchandise;
 
 import com.example.merchandise.database.entities.Merchandise;
+import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
 
 import java.time.LocalDate;
@@ -11,6 +12,8 @@ public class DataMerchandise {
     DataUsers dataUsers;
     private List<Merchandise> merchandises;
     private List<MerchandisePageableDto> merchandisePageableDtos;
+    private Merchandise merchandise;
+    private MerchandiseDto merchandiseDto;
 
     public DataMerchandise() {
         dataUsers = new DataUsers();
@@ -94,5 +97,22 @@ public class DataMerchandise {
                         .dateEntry(getMerchandises().get(4).getDateEntry())
                         .build()
         );
+    }
+
+    public Merchandise getMerchandise() {
+        return getMerchandises().get(0);
+    }
+
+    public MerchandiseDto getMerchandiseDto() {
+        return MerchandiseDto.builder()
+                .id(getMerchandise().getId())
+                .name(getMerchandise().getName())
+                .amount(getMerchandise().getAmount())
+                .dateEntry(getMerchandise().getDateEntry())
+                .registeredByName(getMerchandise().getRegisteredBy().getName())
+                .updatedByName(null)
+                .createdAt(getMerchandise().getCreatedAt())
+                .updatedAt(null)
+                .build();
     }
 }

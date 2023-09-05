@@ -1,6 +1,7 @@
 package com.example.merchandise.controllers;
 
 import com.example.merchandise.DataMerchandise;
+import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
 import com.example.merchandise.services.MerchandiseService;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,5 +52,35 @@ class MerchandiseControllerTest {
                 .andExpect(jsonPath("$[1].name").value("Iphone 11"))
                 .andExpect(jsonPath("$[2].id").value("3"))
                 .andExpect(jsonPath("$[2].name").value("Iphone 12"));
+    }
+
+
+    @Test
+    @DisplayName("get by id  OK")
+    void getByIdOk() throws Exception {
+        //given
+        long userId = 1;
+        MerchandiseDto merchandiseDto = data.getMerchandiseDto();
+        //when
+        when(service.getById(userId)).thenReturn(merchandiseDto);
+        //then
+        mockMvc.perform(get("/api/v1/merchandise/1").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.name").value("Iphone X"))
+                .andExpect(jsonPath("$.registeredByName").value("Juan Garcia"));
+    }
+
+    @Test
+    @DisplayName("get by id No found")
+    void getByIdNoFound() throws Exception {
+        //given
+        long userId = 100;
+        //when
+        when(service.getById(userId)).thenReturn(null);
+        //then
+        mockMvc.perform(get("/api/v1/merchandise/100").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }
