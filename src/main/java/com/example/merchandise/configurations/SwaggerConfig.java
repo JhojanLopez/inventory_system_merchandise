@@ -20,15 +20,15 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.example.users.controllers"))
+                .apis(RequestHandlerSelectors.basePackage("com.example.merchandise.controllers"))
                 .paths(PathSelectors.any())
                 .build();
     }
 
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "Users Microservice API",
-                "API Documentation for Users Microservice",
+                "Merchandise Microservice API",
+                "API Documentation for Merchandise Microservice",
                 "1.0",
                 "Terms of service",
                 new Contact("Jhohan Lopez", "", "jhojanlopez327@gmail.com"),

@@ -27,17 +27,16 @@ public class Merchandise {
     private String name;
 
     @Column(nullable = false)
-    private int amount;
+    private long amount;
 
     @Column(nullable = false)
     private LocalDate dateEntry;
 
-    @JoinColumn(referencedColumnName = "id_user", nullable = false)
+    @JoinColumn(name="registered_by", referencedColumnName = "id_user", nullable = false)
     @ManyToOne
     private User registeredBy;
 
-
-    @JoinColumn(referencedColumnName = "id_user")
+    @JoinColumn(name="updated_by", referencedColumnName = "id_user")
     @ManyToOne
     private User updatedBy;
 
