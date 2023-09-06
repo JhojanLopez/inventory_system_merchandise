@@ -1,10 +1,12 @@
 package com.example.merchandise.services;
 
 import com.example.merchandise.DataMerchandise;
+import com.example.merchandise.clients.UserClient;
 import com.example.merchandise.database.entities.Merchandise;
 import com.example.merchandise.database.repositories.MerchandiseRepository;
 import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
+import com.example.merchandise.models.MerchandiseToSaveDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +32,8 @@ class MerchandiseServiceTest {
     MerchandiseRepository repository;
     @Mock
     ModelMapper mapper;
+    @Mock
+    UserClient userClient;
     @InjectMocks
     MerchandiseServiceImpl merchandiseService;
     DataMerchandise data;
@@ -58,7 +63,7 @@ class MerchandiseServiceTest {
 
         //then
         List<MerchandisePageableDto> all = merchandiseService.getAll(page, size);
-        assertAll(()->{
+        assertAll(() -> {
             assertNotNull(all);
             assertEquals(5, all.size());
             assertEquals(1, all.get(0).getId());
@@ -86,5 +91,50 @@ class MerchandiseServiceTest {
                     assertEquals("Juan Garcia", byId.getRegisteredByName());
                 }
         );
+    }
+
+    @Test
+    @DisplayName("test save merchandise, error unique name")
+    void saveErrorUniqueName() {
+        //given
+        MerchandiseToSaveDto merchandiseToSaveDto = data.getMerchandiseToSaveDto();
+        //when
+        when(repository.existsByName(merchandiseToSaveDto.getName())).thenReturn(true);
+        //then
+        assertThrows(DataIntegrityViolationException.class, () -> merchandiseService.save(merchandiseToSaveDto));
+    }
+
+    @Test
+    @DisplayName("test save merchandise, error user no exist")
+    void saveErrorUserNoExist() {
+        //given
+        MerchandiseToSaveDto merchandiseToSaveDto = data.getMerchandiseToSaveDto();
+        //when
+        when(repository.existsByName(merchandiseToSaveDto.getName())).thenReturn(false);
+        when(userClient.existUserById(merchandiseToSaveDto.getRegisteredById())).thenReturn(false);
+        //then
+        assertThrows(DataIntegrityViolationException.class, () -> merchandiseService.save(merchandiseToSaveDto));
+    }
+
+    @Test
+    @DisplayName("test save merchandise")
+    void save() {
+        //given
+        MerchandiseToSaveDto merchandiseToSaveDto = data.getMerchandiseToSaveDto();
+        Merchandise merchandiseToSave = data.getMerchandiseToSave();
+        MerchandiseDto merchandiseDtoSaved = data.getMerchandiseDtoSaved();
+        //when
+        when(repository.existsByName(merchandiseToSaveDto.getName())).thenReturn(false);
+        when(userClient.existUserById(merchandiseToSaveDto.getRegisteredById())).thenReturn(true);
+        when(mapper.map(merchandiseToSaveDto, Merchandise.class)).thenReturn(merchandiseToSave);
+        when(repository.save(merchandiseToSave)).thenReturn(merchandiseToSave);
+        when(mapper.map(merchandiseToSave, MerchandiseDto.class)).thenReturn(merchandiseDtoSaved);
+        //then
+        MerchandiseDto saved = merchandiseService.save(merchandiseToSaveDto);
+        assertAll(()->{
+            assertDoesNotThrow(()-> merchandiseService.save(merchandiseToSaveDto));
+            assertNotNull(saved);
+            assertEquals(6, saved.getId());
+        });
     }
 }

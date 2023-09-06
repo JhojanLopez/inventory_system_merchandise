@@ -3,7 +3,10 @@ package com.example.merchandise.controllers;
 import com.example.merchandise.DataMerchandise;
 import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
+import com.example.merchandise.models.MerchandiseToSaveDto;
 import com.example.merchandise.services.MerchandiseService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +15,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,7 +47,7 @@ class MerchandiseControllerTest {
         //given
         List<MerchandisePageableDto> merchandisePageableDtos = data.getMerchandisePageableDtos();
         //when
-        when(service.getAll(anyInt(),anyInt())).thenReturn(merchandisePageableDtos);
+        when(service.getAll(anyInt(), anyInt())).thenReturn(merchandisePageableDtos);
         //then
         mockMvc.perform(get("/api/v1/merchandise?page=0&size=5").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -83,4 +90,34 @@ class MerchandiseControllerTest {
         mockMvc.perform(get("/api/v1/merchandise/100").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @DisplayName("test save invalid merchandise")
+    public void testSaveInvalidMerchandise() throws Exception {
+        //given
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        MerchandiseToSaveDto merchandiseToSaveDto = data.getMerchandiseToSaveDto();
+        merchandiseToSaveDto.setAmount(-1);//invalid amount
+
+        //then
+        mockMvc.perform(post("/api/v1/merchandise").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(merchandiseToSaveDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("test save merchandise")
+    public void testSave() throws Exception {
+        //given
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        MerchandiseToSaveDto merchandiseToSaveDto = data.getMerchandiseToSaveDto();
+        MerchandiseDto merchandiseDtoSaved = data.getMerchandiseDtoSaved();
+        //when
+        when(service.save(merchandiseToSaveDto)).thenReturn(merchandiseDtoSaved);
+        //then
+        mockMvc.perform(post("/api/v1/merchandise").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(merchandiseToSaveDto)))
+                .andExpect(status().isCreated());
+    }
 }
+

@@ -1,8 +1,10 @@
 package com.example.merchandise;
 
 import com.example.merchandise.database.entities.Merchandise;
+import com.example.merchandise.database.entities.User;
 import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
+import com.example.merchandise.models.MerchandiseToSaveDto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +16,9 @@ public class DataMerchandise {
     private List<MerchandisePageableDto> merchandisePageableDtos;
     private Merchandise merchandise;
     private MerchandiseDto merchandiseDto;
+    private MerchandiseToSaveDto merchandiseToSaveDto;
+    private Merchandise merchandiseToSave;
+    private MerchandiseDto merchandiseDtoSaved;
 
     public DataMerchandise() {
         dataUsers = new DataUsers();
@@ -113,6 +118,39 @@ public class DataMerchandise {
                 .updatedByName(null)
                 .createdAt(getMerchandise().getCreatedAt())
                 .updatedAt(null)
+                .build();
+    }
+
+    public MerchandiseToSaveDto getMerchandiseToSaveDto() {
+        return MerchandiseToSaveDto.builder()
+                .name("Nuevo Producto")
+                .amount(20)
+                .dateEntry(LocalDate.now())
+                .registeredById(1)
+                .build();
+    }
+
+    public Merchandise getMerchandiseToSave() {
+        return Merchandise.builder()
+                .id(6)
+                .name(getMerchandiseToSaveDto().getName())
+                .amount(getMerchandiseToSaveDto().getAmount())
+                .dateEntry(getMerchandiseToSaveDto().getDateEntry())
+                .createdAt(LocalDateTime.now())
+                .registeredBy(User.builder()
+                        .id(getMerchandiseToSaveDto().getRegisteredById())
+                        .build())
+                .build();
+    }
+
+    public MerchandiseDto getMerchandiseDtoSaved() {
+        return MerchandiseDto.builder()
+                .id(getMerchandiseToSave().getId())
+                .name(getMerchandiseToSave().getName())
+                .amount(getMerchandiseToSave().getAmount())
+                .dateEntry(getMerchandiseToSave().getDateEntry())
+                .registeredByName(getMerchandiseToSave().getRegisteredBy().getName())
+                .createdAt(getMerchandiseToSave().getCreatedAt())
                 .build();
     }
 }

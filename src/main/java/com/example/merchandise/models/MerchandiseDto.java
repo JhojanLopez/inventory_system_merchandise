@@ -16,9 +16,9 @@ public class MerchandiseDto {
     private long id;
     private String name;
     private long amount;
+    private LocalDate dateEntry;
     private String registeredByName;
     private String updatedByName;
-    private LocalDate dateEntry;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
