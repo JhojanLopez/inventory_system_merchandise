@@ -174,6 +174,7 @@ class MerchandiseServiceTest {
         //when
         when(repository.existsByName(merchandiseToUpdateDto.getName())).thenReturn(false);
         when(userClient.existUserById(merchandiseToUpdateDto.getUpdatedById())).thenReturn(true);
+        when(repository.findById(merchandiseId)).thenReturn(Optional.of(merchandiseToUpdate));
         when(repository.save(any(Merchandise.class))).thenReturn(merchandiseToUpdate);
         when(mapper.map(merchandiseToUpdate,MerchandiseDto.class)).thenReturn(merchandiseUpdatedDto);
         //then

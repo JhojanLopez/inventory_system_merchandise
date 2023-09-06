@@ -25,9 +25,9 @@ public class MerchandiseController {
         return ResponseEntity.ok(merchandiseService.getAll(page, size));
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getById(@PathVariable long userId) {
-        MerchandiseDto byId = merchandiseService.getById(userId);
+    @GetMapping("/{merchandiseId}")
+    public ResponseEntity<?> getById(@PathVariable long merchandiseId) {
+        MerchandiseDto byId = merchandiseService.getById(merchandiseId);
         if (byId == null)
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(byId);

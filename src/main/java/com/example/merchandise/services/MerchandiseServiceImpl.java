@@ -69,10 +69,8 @@ public class MerchandiseServiceImpl implements MerchandiseService {
         if (!userClient.existUserById(merchandiseToUpdateDto.getUpdatedById()))
             throw new DataIntegrityViolationException("The user with id " + merchandiseToUpdateDto.getUpdatedById() + " does not exist");
 
-        Merchandise entityToUpdate = Merchandise.builder()
-                .id(merchandiseId)
-                .updatedBy(User.builder().id(merchandiseToUpdateDto.getUpdatedById()).build())
-                .build();
+        Merchandise entityToUpdate = merchandiseRepository.findById(merchandiseId).get();
+        entityToUpdate.setUpdatedBy(User.builder().id(merchandiseToUpdateDto.getUpdatedById()).build());
 
         if (merchandiseToUpdateDto.getName() != null)
             entityToUpdate.setName(merchandiseToUpdateDto.getName());
