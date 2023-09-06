@@ -51,4 +51,13 @@ public class MerchandiseController {
 
         return ResponseEntity.ok(merchandiseService.update(merchandiseId, merchandiseToUpdateDto));
     }
+
+    @DeleteMapping("/{merchandiseId}")
+    public ResponseEntity<?> update(@PathVariable long merchandiseId) {
+        if (merchandiseService.getById(merchandiseId) == null)
+            return ResponseEntity.badRequest().body("The merchandise does not exist");
+
+        merchandiseService.delete(merchandiseId);
+        return ResponseEntity.noContent().build();
+    }
 }

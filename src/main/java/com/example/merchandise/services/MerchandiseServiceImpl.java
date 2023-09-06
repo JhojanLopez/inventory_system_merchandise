@@ -84,4 +84,10 @@ public class MerchandiseServiceImpl implements MerchandiseService {
         Merchandise updated = merchandiseRepository.save(entityToUpdate);
         return mapper.map(updated, MerchandiseDto.class);
     }
+
+    @Override
+    public void delete(long merchandiseId) {
+        Merchandise merchandise = merchandiseRepository.findById(merchandiseId).get();
+        merchandiseRepository.delete(merchandise);
+    }
 }

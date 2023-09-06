@@ -12,4 +12,5 @@ public interface MerchandiseService {
     MerchandiseDto getById(long id);
     MerchandiseDto save(MerchandiseToSaveDto merchandiseToSaveDto);
     MerchandiseDto update(long merchandiseId, MerchandiseToUpdateDto merchandiseToSaveDto);
+    void delete(long merchandiseId);
 }

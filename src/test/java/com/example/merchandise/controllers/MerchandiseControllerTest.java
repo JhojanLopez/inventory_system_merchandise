@@ -24,6 +24,7 @@ import org.springframework.validation.ObjectError;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -174,6 +175,32 @@ class MerchandiseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("Nokia 3000"));
+    }
+
+    @Test
+    @DisplayName("test delete, invalid merchandise id")
+    public void testDeleteInvalid() throws Exception {
+        //given
+        long merchandiseId=1;
+        //when
+        when(service.getById(merchandiseId)).thenReturn(null);
+        //then
+        mockMvc.perform(delete("/api/v1/merchandise/1").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("test delete, invalid merchandise id")
+    public void testDelete() throws Exception {
+        //given
+        long merchandiseId=1;
+        MerchandiseDto merchandiseDto = data.getMerchandiseDto();
+        //when
+        when(service.getById(merchandiseId)).thenReturn(merchandiseDto);
+        //then
+        mockMvc.perform(delete("/api/v1/merchandise/1").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+        verify(service).delete(merchandiseId);
     }
 }
 

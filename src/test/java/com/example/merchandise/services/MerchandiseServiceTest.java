@@ -185,4 +185,18 @@ class MerchandiseServiceTest {
             assertEquals("Nokia 3000", updated.getName());
         });
     }
+
+    @Test
+    @DisplayName("test delete merchandise")
+    void delete() {
+        //given
+        long merchandiseId = 1;
+        Merchandise merchandise = data.getMerchandise();
+        //when
+        when(repository.findById(merchandiseId)).thenReturn(Optional.of(merchandise));
+
+        //then
+        assertDoesNotThrow(()->  merchandiseService.delete(merchandiseId));
+        verify(repository).delete(merchandise);
+    }
 }
