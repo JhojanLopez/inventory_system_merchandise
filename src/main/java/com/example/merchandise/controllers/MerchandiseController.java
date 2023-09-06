@@ -2,6 +2,7 @@ package com.example.merchandise.controllers;
 
 import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandiseToSaveDto;
+import com.example.merchandise.models.MerchandiseToUpdateDto;
 import com.example.merchandise.services.MerchandiseService;
 import com.example.merchandise.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,17 @@ public class MerchandiseController {
         if (result.hasErrors()) return ResponseEntity.badRequest().body(ValidationUtils.getErrors(result));
         merchandiseService.save(merchandiseToSaveDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/{merchandiseId}")
+    public ResponseEntity<?> update(@PathVariable long merchandiseId, @Valid @RequestBody MerchandiseToUpdateDto merchandiseToUpdateDto, BindingResult result) {
+
+        if (merchandiseService.getById(merchandiseId) == null)
+            return ResponseEntity.badRequest().body("The merchandise does not exist");
+
+        if (result.hasErrors())
+            return ResponseEntity.badRequest().body(ValidationUtils.getErrors(result));
+
+        return ResponseEntity.ok(merchandiseService.update(merchandiseId, merchandiseToUpdateDto));
     }
 }

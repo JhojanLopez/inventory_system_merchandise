@@ -5,6 +5,7 @@ import com.example.merchandise.database.entities.User;
 import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
 import com.example.merchandise.models.MerchandiseToSaveDto;
+import com.example.merchandise.models.MerchandiseToUpdateDto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,7 +20,9 @@ public class DataMerchandise {
     private MerchandiseToSaveDto merchandiseToSaveDto;
     private Merchandise merchandiseToSave;
     private MerchandiseDto merchandiseDtoSaved;
-
+    private MerchandiseToUpdateDto merchandiseToUpdateDto;
+    private Merchandise merchandiseToUpdate;
+    private MerchandiseDto merchandiseUpdatedDto;
     public DataMerchandise() {
         dataUsers = new DataUsers();
     }
@@ -151,6 +154,41 @@ public class DataMerchandise {
                 .dateEntry(getMerchandiseToSave().getDateEntry())
                 .registeredByName(getMerchandiseToSave().getRegisteredBy().getName())
                 .createdAt(getMerchandiseToSave().getCreatedAt())
+                .build();
+    }
+
+    public MerchandiseToUpdateDto getMerchandiseToUpdateDto() {
+        return MerchandiseToUpdateDto.builder()
+                .name("Nokia 3000")
+                .dateEntry(LocalDate.now().minusMonths(2))
+                .amount(2L)
+                .updatedById(1L)
+                .build();
+    }
+
+    public Merchandise getMerchandiseToUpdate() {
+        Merchandise merchandiseToUpdate = Merchandise.builder()
+                .updatedBy(User.builder().id(getMerchandiseToUpdateDto().getUpdatedById()).build())
+                .build();
+
+        if (getMerchandiseToUpdateDto().getName() != null)
+            merchandiseToUpdate.setName(getMerchandiseToUpdateDto().getName());
+
+        if (getMerchandiseToUpdateDto().getAmount() != null)
+            merchandiseToUpdate.setAmount(getMerchandiseToUpdateDto().getAmount());
+
+        if (getMerchandiseToUpdateDto().getDateEntry() != null)
+            merchandiseToUpdate.setDateEntry(getMerchandiseToUpdateDto().getDateEntry());
+
+        return merchandiseToUpdate;
+    }
+
+    public MerchandiseDto getMerchandiseUpdatedDto() {
+        return MerchandiseDto.builder()
+                .id(getMerchandiseToUpdate().getId())
+                .name(getMerchandiseToUpdate().getName())
+                .amount(getMerchandiseToUpdate().getAmount())
+                .dateEntry(getMerchandiseToUpdate().getDateEntry())
                 .build();
     }
 }

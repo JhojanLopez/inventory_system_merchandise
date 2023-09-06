@@ -7,6 +7,7 @@ import com.example.merchandise.database.repositories.MerchandiseRepository;
 import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
 import com.example.merchandise.models.MerchandiseToSaveDto;
+import com.example.merchandise.models.MerchandiseToUpdateDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -134,6 +135,53 @@ class MerchandiseServiceTest {
             assertDoesNotThrow(()-> merchandiseService.save(merchandiseToSaveDto));
             assertNotNull(saved);
             assertEquals(6, saved.getId());
+        });
+    }
+
+    @Test
+    @DisplayName("test update merchandise, error unique name")
+    void updateErrorUniqueName() {
+        //given
+        long merchandiseId = 1;
+        MerchandiseToUpdateDto merchandiseToUpdateDto = data.getMerchandiseToUpdateDto();
+        //when
+        when(repository.existsByName(merchandiseToUpdateDto.getName())).thenReturn(true);
+        //then
+        assertThrows(DataIntegrityViolationException.class, () -> merchandiseService.update(merchandiseId,merchandiseToUpdateDto));
+    }
+
+    @Test
+    @DisplayName("test update merchandise, error user no exist")
+    void updateErrorUserNoExist() {
+        //given
+        long merchandiseId = 1;
+        MerchandiseToUpdateDto merchandiseToUpdateDto = data.getMerchandiseToUpdateDto();
+        //when
+        when(repository.existsByName(merchandiseToUpdateDto.getName())).thenReturn(false);
+        when(userClient.existUserById(merchandiseToUpdateDto.getUpdatedById())).thenReturn(false);
+        //then
+        assertThrows(DataIntegrityViolationException.class, () -> merchandiseService.update(merchandiseId,merchandiseToUpdateDto));
+    }
+
+    @Test
+    @DisplayName("test update merchandise")
+    void update() {
+        //given
+        long merchandiseId = 1;
+        MerchandiseToUpdateDto merchandiseToUpdateDto = data.getMerchandiseToUpdateDto();
+        Merchandise merchandiseToUpdate = data.getMerchandiseToUpdate();
+        MerchandiseDto merchandiseUpdatedDto = data.getMerchandiseUpdatedDto();
+        //when
+        when(repository.existsByName(merchandiseToUpdateDto.getName())).thenReturn(false);
+        when(userClient.existUserById(merchandiseToUpdateDto.getUpdatedById())).thenReturn(true);
+        when(repository.save(any(Merchandise.class))).thenReturn(merchandiseToUpdate);
+        when(mapper.map(merchandiseToUpdate,MerchandiseDto.class)).thenReturn(merchandiseUpdatedDto);
+        //then
+        MerchandiseDto updated = merchandiseService.update(merchandiseId,merchandiseToUpdateDto);
+        assertAll(()->{
+            assertDoesNotThrow(()-> merchandiseService.update(merchandiseId,merchandiseToUpdateDto));
+            assertNotNull(updated);
+            assertEquals("Nokia 3000", updated.getName());
         });
     }
 }

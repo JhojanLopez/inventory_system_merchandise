@@ -1,9 +1,11 @@
 package com.example.merchandise.controllers;
 
 import com.example.merchandise.DataMerchandise;
+import com.example.merchandise.database.entities.Merchandise;
 import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
 import com.example.merchandise.models.MerchandiseToSaveDto;
+import com.example.merchandise.models.MerchandiseToUpdateDto;
 import com.example.merchandise.services.MerchandiseService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -19,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -118,6 +121,59 @@ class MerchandiseControllerTest {
         mockMvc.perform(post("/api/v1/merchandise").contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(merchandiseToSaveDto)))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    @DisplayName("test update invalid merchandise id")
+    public void testUpdateInvalidMerchandiseId() throws Exception {
+        //given
+        long merchandiseId=100;
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        MerchandiseToUpdateDto merchandiseToUpdateDto = data.getMerchandiseToUpdateDto();
+        //when
+        when(service.getById(merchandiseId)).thenReturn(null);
+        //then
+        mockMvc.perform(put("/api/v1/merchandise/100").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(merchandiseToUpdateDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("test update invalid merchandise")
+    public void testUpdateInvalidMerchandise() throws Exception {
+        //given
+        long merchandiseId=1;
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        MerchandiseToUpdateDto merchandiseToUpdateDto = data.getMerchandiseToUpdateDto();
+
+        merchandiseToUpdateDto.setAmount(-1L);
+        merchandiseToUpdateDto.setDateEntry(LocalDate.now().plusMonths(5));
+
+        //when
+        when(service.getById(merchandiseId)).thenReturn(data.getMerchandiseDto());
+        //then
+        mockMvc.perform(put("/api/v1/merchandise/1").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(merchandiseToUpdateDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("test update merchandise")
+    public void testUpdate() throws Exception {
+        //given
+        long merchandiseId=1;
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        MerchandiseToUpdateDto merchandiseToUpdateDto = data.getMerchandiseToUpdateDto();
+        MerchandiseDto merchandiseUpdatedDto = data.getMerchandiseUpdatedDto();
+        //when
+        when(service.getById(merchandiseId)).thenReturn(data.getMerchandiseDto());
+        when(service.update(merchandiseId, merchandiseToUpdateDto)).thenReturn(merchandiseUpdatedDto);
+        //then
+        mockMvc.perform(put("/api/v1/merchandise/1").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(merchandiseToUpdateDto)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name").value("Nokia 3000"));
     }
 }
 

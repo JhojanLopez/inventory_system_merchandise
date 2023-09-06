@@ -7,6 +7,7 @@ import com.example.merchandise.database.repositories.MerchandiseRepository;
 import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandisePageableDto;
 import com.example.merchandise.models.MerchandiseToSaveDto;
+import com.example.merchandise.models.MerchandiseToUpdateDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -16,6 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -43,8 +46,8 @@ public class MerchandiseServiceImpl implements MerchandiseService {
         if (merchandiseRepository.existsByName(merchandiseToSaveDto.getName()))
             throw new DataIntegrityViolationException("The name must be unique");
 
-        if(!userClient.existUserById(merchandiseToSaveDto.getRegisteredById()))
-            throw new DataIntegrityViolationException("The user with id "+merchandiseToSaveDto.getRegisteredById()+" does not exist");
+        if (!userClient.existUserById(merchandiseToSaveDto.getRegisteredById()))
+            throw new DataIntegrityViolationException("The user with id " + merchandiseToSaveDto.getRegisteredById() + " does not exist");
 
         Merchandise toSave = Merchandise.builder()
                 .name(merchandiseToSaveDto.getName())
@@ -56,5 +59,31 @@ public class MerchandiseServiceImpl implements MerchandiseService {
 
         Merchandise saved = merchandiseRepository.save(toSave);
         return mapper.map(saved, MerchandiseDto.class);
+    }
+
+    @Override
+    public MerchandiseDto update(long merchandiseId, MerchandiseToUpdateDto merchandiseToUpdateDto) {
+        if (merchandiseToUpdateDto.getName() != null && merchandiseRepository.existsByName(merchandiseToUpdateDto.getName()))
+            throw new DataIntegrityViolationException("The name must be unique");
+
+        if (!userClient.existUserById(merchandiseToUpdateDto.getUpdatedById()))
+            throw new DataIntegrityViolationException("The user with id " + merchandiseToUpdateDto.getUpdatedById() + " does not exist");
+
+        Merchandise entityToUpdate = Merchandise.builder()
+                .id(merchandiseId)
+                .updatedBy(User.builder().id(merchandiseToUpdateDto.getUpdatedById()).build())
+                .build();
+
+        if (merchandiseToUpdateDto.getName() != null)
+            entityToUpdate.setName(merchandiseToUpdateDto.getName());
+
+        if (merchandiseToUpdateDto.getAmount() != null)
+            entityToUpdate.setAmount(merchandiseToUpdateDto.getAmount());
+
+        if (merchandiseToUpdateDto.getDateEntry() != null)
+            entityToUpdate.setDateEntry(merchandiseToUpdateDto.getDateEntry());
+
+        Merchandise updated = merchandiseRepository.save(entityToUpdate);
+        return mapper.map(updated, MerchandiseDto.class);
     }
 }
