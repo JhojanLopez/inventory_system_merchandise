@@ -126,8 +126,7 @@ class MerchandiseServiceTest {
         //when
         when(repository.existsByName(merchandiseToSaveDto.getName())).thenReturn(false);
         when(userClient.existUserById(merchandiseToSaveDto.getRegisteredById())).thenReturn(true);
-        when(mapper.map(merchandiseToSaveDto, Merchandise.class)).thenReturn(merchandiseToSave);
-        when(repository.save(merchandiseToSave)).thenReturn(merchandiseToSave);
+        when(repository.save(any(Merchandise.class))).thenReturn(merchandiseToSave);
         when(mapper.map(merchandiseToSave, MerchandiseDto.class)).thenReturn(merchandiseDtoSaved);
         //then
         MerchandiseDto saved = merchandiseService.save(merchandiseToSaveDto);

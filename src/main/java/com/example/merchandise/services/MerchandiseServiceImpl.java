@@ -46,7 +46,6 @@ public class MerchandiseServiceImpl implements MerchandiseService {
         if(!userClient.existUserById(merchandiseToSaveDto.getRegisteredById()))
             throw new DataIntegrityViolationException("The user with id "+merchandiseToSaveDto.getRegisteredById()+" does not exist");
 
-        log.info(merchandiseToSaveDto.toString());
         Merchandise toSave = Merchandise.builder()
                 .name(merchandiseToSaveDto.getName())
                 .amount(merchandiseToSaveDto.getAmount())
@@ -54,9 +53,8 @@ public class MerchandiseServiceImpl implements MerchandiseService {
                 .registeredBy(User.builder().id(merchandiseToSaveDto.getRegisteredById()).build())
                 .build();
         log.info(merchandiseToSaveDto.toString());
-        log.info(toSave.toString());
 
-        merchandiseRepository.save(toSave);
-        return mapper.map(toSave, MerchandiseDto.class);
+        Merchandise saved = merchandiseRepository.save(toSave);
+        return mapper.map(saved, MerchandiseDto.class);
     }
 }
