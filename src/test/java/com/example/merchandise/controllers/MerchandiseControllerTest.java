@@ -22,9 +22,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -50,19 +48,38 @@ class MerchandiseControllerTest {
     void getAll() throws Exception {
         //given
         List<MerchandisePageableDto> merchandisePageableDtos = data.getMerchandisePageableDtos();
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", merchandisePageableDtos);
+        response.put("totalElements", 10);
         //when
-        when(service.getAll(anyInt(), anyInt())).thenReturn(merchandisePageableDtos);
+        when(service.getAll(anyInt(), anyInt())).thenReturn(response);
         //then
         mockMvc.perform(get("/api/v1/merchandise?page=0&size=5").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(5)))
-                .andExpect(jsonPath("$[0].id").value("1"))
-                .andExpect(jsonPath("$[0].name").value("Iphone X"))
-                .andExpect(jsonPath("$[1].id").value("2"))
-                .andExpect(jsonPath("$[1].name").value("Iphone 11"))
-                .andExpect(jsonPath("$[2].id").value("3"))
-                .andExpect(jsonPath("$[2].name").value("Iphone 12"));
+                .andExpect(jsonPath("$.content.size()").value(5))
+                .andExpect(jsonPath("$.totalElements").value(10));
+    }
+
+    @Test
+    @DisplayName("get All by name")
+    void getAllByName() throws Exception {
+        //given
+        List<Merchandise> filter = data.getMerchandises().stream().filter(m -> m.getName().contains("X")).toList();
+        MerchandisePageableDto merchandisePageableDto = MerchandisePageableDto.builder()
+                .id(filter.get(0).getId())
+                .name(filter.get(0).getName())
+                .amount(filter.get(0).getAmount())
+                .dateEntry(filter.get(0).getDateEntry())
+                .build();
+        //when
+        when(service.getByNameContainingIgnoreCase("X")).thenReturn(List.of(merchandisePageableDto));
+        //then
+        mockMvc.perform(get("/api/v1/merchandise/name/X").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$.[0].name").value("Iphone X"));
     }
 
 

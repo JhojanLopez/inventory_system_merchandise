@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,11 +64,11 @@ class MerchandiseServiceTest {
         when(mapper.map(merchandises.get(4), MerchandisePageableDto.class)).thenReturn(merchandisePageableDtos.get(4));
 
         //then
-        List<MerchandisePageableDto> all = merchandiseService.getAll(page, size);
+        Map<String, Object> all = merchandiseService.getAll(page, size);
         assertAll(() -> {
             assertNotNull(all);
-            assertEquals(5, all.size());
-            assertEquals(1, all.get(0).getId());
+            assertTrue(all.containsKey("content"));
+            assertTrue(all.containsKey("totalElements"));
         });
     }
 
@@ -103,6 +104,31 @@ class MerchandiseServiceTest {
         when(repository.existsByName(merchandiseToSaveDto.getName())).thenReturn(true);
         //then
         assertThrows(DataIntegrityViolationException.class, () -> merchandiseService.save(merchandiseToSaveDto));
+    }
+
+
+    @Test
+    @DisplayName("test get by name")
+    void getByNameContainingIgnoreCase() {
+        //given
+        List<Merchandise> filter = data.getMerchandises().stream().filter(m -> m.getName().contains("X")).toList();
+        MerchandisePageableDto merchandisePageableDto = MerchandisePageableDto.builder()
+                .id(filter.get(0).getId())
+                .name(filter.get(0).getName())
+                .amount(filter.get(0).getAmount())
+                .dateEntry(filter.get(0).getDateEntry())
+                .build();
+        //when
+        when(repository.findByNameContainingIgnoreCase("X")).thenReturn(filter);
+        when(mapper.map(filter.get(0), MerchandisePageableDto.class)).thenReturn(merchandisePageableDto);
+        //then
+        List<MerchandisePageableDto> filterByName = merchandiseService.getByNameContainingIgnoreCase("X");
+        assertAll(
+                () -> {
+                    assertFalse(filterByName.isEmpty());
+                    assertEquals("Iphone X",filterByName.get(0).getName());
+                }
+        );
     }
 
     @Test

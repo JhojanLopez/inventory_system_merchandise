@@ -1,5 +1,6 @@
 package com.example.merchandise.controllers;
 
+import com.example.merchandise.database.repositories.MerchandiseRepository;
 import com.example.merchandise.models.MerchandiseDto;
 import com.example.merchandise.models.MerchandiseToSaveDto;
 import com.example.merchandise.models.MerchandiseToUpdateDto;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.Binding;
 import javax.validation.Valid;
 
 @RestController
@@ -19,10 +19,14 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class MerchandiseController {
     private final MerchandiseService merchandiseService;
-
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam int page, @RequestParam int size) {
         return ResponseEntity.ok(merchandiseService.getAll(page, size));
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<?> getAllByName(@PathVariable String name) {
+        return ResponseEntity.ok(merchandiseService.getByNameContainingIgnoreCase(name));
     }
 
     @GetMapping("/{merchandiseId}")

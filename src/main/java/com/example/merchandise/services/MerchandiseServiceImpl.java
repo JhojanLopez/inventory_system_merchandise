@@ -12,11 +12,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -29,16 +32,28 @@ public class MerchandiseServiceImpl implements MerchandiseService {
     private final UserClient userClient;
 
     @Override
-    public List<MerchandisePageableDto> getAll(int page, int size) {
+    public Map<String, Object> getAll(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
-        return merchandiseRepository.findAll(pageable).stream()
-                .map(e -> mapper.map(e, MerchandisePageableDto.class))
-                .toList();
+        Page<Merchandise> merchandises = merchandiseRepository.findAll(pageable);
+
+        List<MerchandisePageableDto> content = merchandises.stream().map(e -> mapper.map(e, MerchandisePageableDto.class)).toList();
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", content);
+        response.put("totalElements", merchandises.getTotalElements());
+
+        return response;
     }
 
     @Override
     public MerchandiseDto getById(long id) {
         return merchandiseRepository.findById(id).map(e -> mapper.map(e, MerchandiseDto.class)).orElse(null);
+    }
+
+    @Override
+    public List<MerchandisePageableDto> getByNameContainingIgnoreCase(String name) {
+        return merchandiseRepository.findByNameContainingIgnoreCase(name).stream()
+                .map(e-> mapper.map(e, MerchandisePageableDto.class))
+                .toList();
     }
 
     @Override
