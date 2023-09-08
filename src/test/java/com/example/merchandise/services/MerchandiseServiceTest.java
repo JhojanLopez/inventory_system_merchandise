@@ -170,7 +170,11 @@ class MerchandiseServiceTest {
         //given
         long merchandiseId = 1;
         MerchandiseToUpdateDto merchandiseToUpdateDto = data.getMerchandiseToUpdateDto();
+        merchandiseToUpdateDto.setName("Any name no unique");
+        Merchandise merchandiseToUpdate = data.getMerchandiseToUpdate();
         //when
+        when(userClient.existUserById(merchandiseToUpdateDto.getUpdatedById())).thenReturn(true);
+        when(repository.findById(merchandiseId)).thenReturn(Optional.of(merchandiseToUpdate));
         when(repository.existsByName(merchandiseToUpdateDto.getName())).thenReturn(true);
         //then
         assertThrows(DataIntegrityViolationException.class, () -> merchandiseService.update(merchandiseId,merchandiseToUpdateDto));
@@ -183,7 +187,6 @@ class MerchandiseServiceTest {
         long merchandiseId = 1;
         MerchandiseToUpdateDto merchandiseToUpdateDto = data.getMerchandiseToUpdateDto();
         //when
-        when(repository.existsByName(merchandiseToUpdateDto.getName())).thenReturn(false);
         when(userClient.existUserById(merchandiseToUpdateDto.getUpdatedById())).thenReturn(false);
         //then
         assertThrows(DataIntegrityViolationException.class, () -> merchandiseService.update(merchandiseId,merchandiseToUpdateDto));
@@ -198,7 +201,6 @@ class MerchandiseServiceTest {
         Merchandise merchandiseToUpdate = data.getMerchandiseToUpdate();
         MerchandiseDto merchandiseUpdatedDto = data.getMerchandiseUpdatedDto();
         //when
-        when(repository.existsByName(merchandiseToUpdateDto.getName())).thenReturn(false);
         when(userClient.existUserById(merchandiseToUpdateDto.getUpdatedById())).thenReturn(true);
         when(repository.findById(merchandiseId)).thenReturn(Optional.of(merchandiseToUpdate));
         when(repository.save(any(Merchandise.class))).thenReturn(merchandiseToUpdate);

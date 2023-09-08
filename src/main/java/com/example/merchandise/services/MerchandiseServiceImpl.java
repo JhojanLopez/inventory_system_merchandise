@@ -78,13 +78,16 @@ public class MerchandiseServiceImpl implements MerchandiseService {
 
     @Override
     public MerchandiseDto update(long merchandiseId, MerchandiseToUpdateDto merchandiseToUpdateDto) {
-        if (merchandiseToUpdateDto.getName() != null && merchandiseRepository.existsByName(merchandiseToUpdateDto.getName()))
-            throw new DataIntegrityViolationException("The name must be unique");
-
         if (!userClient.existUserById(merchandiseToUpdateDto.getUpdatedById()))
             throw new DataIntegrityViolationException("The user with id " + merchandiseToUpdateDto.getUpdatedById() + " does not exist");
 
         Merchandise entityToUpdate = merchandiseRepository.findById(merchandiseId).get();
+
+        if (merchandiseToUpdateDto.getName() != null && (!Objects.equals(entityToUpdate.getName(), merchandiseToUpdateDto.getName())
+                && merchandiseRepository.existsByName(merchandiseToUpdateDto.getName()))) {
+            throw new DataIntegrityViolationException("The name must be unique");
+        }
+
         entityToUpdate.setUpdatedBy(User.builder().id(merchandiseToUpdateDto.getUpdatedById()).build());
 
         if (merchandiseToUpdateDto.getName() != null)
