@@ -8,6 +8,9 @@ Microservicio de mercancia donde se tiene el crud completo de la entidad.
 - Eureka desplegado.
 - Microservicio usuarios desplegado.
 
+## Pruebas unitarias
+El microservicio cuenta con pruebas unitarias tanto en sus servicios como enpoints usando Junit5 y mockito.
+
 ## Controladores
 El microservicio tiene incluido swagger para la documentacion de los enpoints, accede a el en http://localhost:8081/swagger-ui.html
 
