@@ -1,38 +1,47 @@
-# Descripcion
-Microservicio de mercancia donde se tiene el crud completo de la entidad.
+# Description
 
-# Requerimientos
+This project is a microservices-based inventory management system that supports full lifecycle management of any type of merchandise — creating, editing, and deleting stock items. Users can log in with any of the predefined accounts to operate the system. The technologies used in this application are:
+
 - Docker
-- Si no tiene docker es necesario java 17.
-- Base de datos Posgresql desplegada.
-- Eureka desplegado.
-- Microservicio usuarios desplegado.
+- PostgreSQL
+- Spring Boot
+- Angular
 
-## Pruebas unitarias
-El microservicio cuenta con pruebas unitarias tanto en sus servicios como enpoints usando Junit5 y mockito.
+The repositories that make up the system are:
 
-## Controladores
-El microservicio tiene incluido swagger para la documentacion de los enpoints, accede a el en http://localhost:8081/swagger-ui.html
+- [Database](https://github.com/JhojanLopez/inventory_system_database) (includes the database structure backup file, `backup.backup`)
+- [Eureka Server](https://github.com/JhojanLopez/inventory_system_eureka)
+- [API Gateway](https://github.com/JhojanLopez/inventory_system_gateway)
+- [Users Microservice](https://github.com/JhojanLopez/inventory_system_users)
+- [Merchandise Microservice](https://github.com/JhojanLopez/inventory_system_merchandise)
+- [Inventory System (Frontend)](https://github.com/JhojanLopez/inventory_system_frontend)
 
-## Despliegue
-Podemos correr eureka facilmente de dos maneras:
+# Deployment
 
-- Con gradle (sin instalacion):
-1. Use el siguiente comando en la raiz del proyecto, no necesita compilar el codigo fuente ni tener gradle instalado:
+To deploy the backend, use the `docker-compose` file included in the root of the repository. It is preconfigured by default for use in a local environment, with the following commands:
+
+- Start the system:
 ```shell
-./gradlew bootRun
+docker compose up -d
 ```
 
-- Con docker:
-
-1. Creamos y corremos el contenedor, importante exponer el puerto 8081:
+- Stop the system:
 ```shell
-docker run -p 8081:8081 --name <container_name> jhojanlopez/inventory_system_merchandise
+docker compose down
 ```
 
-2. Si eureka, la base de datos o el microservicio usuarios no estan en la misma red virutal agregar las variables de entorno de acuerdo a su red:
+Alternatively, you can deploy each of the repositories listed above individually, following the order in which they are mentioned. Note that if you deploy them with Docker directly rather than through the provided orchestrator, you must set the appropriate environment variables so the services can communicate correctly, since they will not be running on the same virtual network.
+
+Next, the frontend needs to be deployed. To do so, follow the steps in the [Inventory System (Frontend)](https://github.com/JhojanLopez/inventory_system_frontend) documentation, which include:
+
+- Installing Angular dependencies:
 ```shell
-docker run -p 8081:8081 -e HOST_DB=<host_db> -e HOST_EUREKA=<host_eureka> -e MICROSERVICE_URLUSERS=<url-users> --name <container_name> jhojanlopez/inventory_system_merchandise
+npm install
 ```
 
+- Running the project using the `proxy.config` file included in the root of the frontend project:
+```shell
+ng serve -o --proxy-config proxy.config.js
+```
 
+Finally, an [evidencias.md](evidencias%2Fevidencias.md) file is included, showing the overall functionality of the system.
